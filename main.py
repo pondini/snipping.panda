@@ -19,10 +19,10 @@ class Snipping(QWidget):
         
         self.setGeometry(0, 0, self.screen_width, self.screen_height)
         self.snipping = False
-        self.begin = QPointF()
-        self.end = QPointF()
         
     def take_screenshot(self):
+        self.begin = QPointF()
+        self.end = QPointF()
         self.snipping = True
         
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.CrossCursor))
