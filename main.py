@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir
-from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox
+from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox, QTabWidget
 from PySide6.QtGui import QCursor, QKeyEvent, QMouseEvent, QPaintEvent, QPainter, QColor, QPen, QPixmap, QImageWriter
 from PIL import ImageGrab
 from PIL.ImageQt import ImageQt
@@ -81,10 +81,12 @@ class Snipping(QWidget):
         
         self.close()
         
-
 class ScreenshotMenu(QWidget):    
-    def __init__(self) -> None:
+    def __init__(self, main_window = None) -> None:
         super(ScreenshotMenu, self).__init__()
+        
+        self.main_window = main_window
+        
         self.screenshot = QLabel(self)
         self.screenshot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.screenshot.setAlignment(Qt.AlignCenter)
@@ -95,7 +97,7 @@ class ScreenshotMenu(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.screenshot)
         
-        buttons = QHBoxLayout(self)
+        buttons = QHBoxLayout()
         self.new = QPushButton("New", self)
         self.new.clicked.connect(self.new_screenshot)
         
@@ -162,12 +164,21 @@ class ScreenshotMenu(QWidget):
             )
         )
 
+class MainWidget(QTabWidget):
+    def __init__(self):
+        super(MainWidget, self).__init__()
+        
+        self.screenshot = ScreenshotMenu(self)
+        self.addTab(self.screenshot, "Screenshot")
+        
+        self.setWindowTitle("Screenshot Tool")
+        self.resize(500, 400)
+
 def main() -> None:
     app = QApplication(sys.argv)
-    screenshot = ScreenshotMenu()
-    screenshot.show()
+    main_widget = MainWidget()
+    main_widget.show()
         
-    app.aboutToQuit.connect(app.deleteLater)
     app.exec()
 
 if __name__ == "__main__":
