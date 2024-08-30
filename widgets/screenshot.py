@@ -1,4 +1,5 @@
 import time
+from typing import Callable
 
 from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir
 from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox
@@ -8,10 +9,12 @@ from PIL.ImageQt import ImageQt
 import cv2
 import numpy as np
 
-class Snipping(QWidget):
-    def __init__(self, main: "ScreenshotMenu" = None) -> None:
-        super(Snipping, self).__init__()
-        self.main = main
+class ScreenshotTool(QWidget):
+    def __init__(self, outer: QWidget = None, update_pixmap: Callable = None) -> None:
+        super(ScreenshotTool, self).__init__()
+        self.outer = outer
+        
+        self.update_pixmap = update_pixmap
         
         screen_size = self.screen().size()
         self.screen_width, self.screen_height = screen_size.width(), screen_size.height()
@@ -19,14 +22,31 @@ class Snipping(QWidget):
         self.setGeometry(0, 0, self.screen_width, self.screen_height)
         self.snipping = False
         
-    def take_screenshot(self):
+    def take_full_screenshot(self):
+        screen = QApplication.primaryScreen()
+        window = self.windowHandle()
+        
+        if window:
+            screen = window.screen()
+            
+        if not screen:
+            return
+        
+        self.outer.hide()
+        time.sleep(0.3)        
+        image = ImageGrab.grab(bbox=(0, 0, self.screen_width, self.screen_height))
+        self.outer.show()
+            
+        return image
+        
+    def take_area_screenshot(self):
         self.begin = QPointF()
         self.end = QPointF()
         self.snipping = True
         
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.CrossCursor))
         
-        self._image = self.main.new_screenshot(False)
+        self._image = self.take_full_screenshot()
         img = ImageQt(self._image)
         self._pixmap = QPixmap.fromImage(img)
         
@@ -82,7 +102,8 @@ class Snipping(QWidget):
         QApplication.processEvents()
         image = self._image.crop((x[0], y[0], x[1], y[1]))
         
-        self.main.update_screenshot(image)
+        if self.update_pixmap:
+            self.update_pixmap(image)
         
         self.close()
         
@@ -119,31 +140,14 @@ class ScreenshotMenu(QWidget):
         
         main_layout.addLayout(buttons)
         
-        self.snipping_tool = Snipping(self)
+        self.screenshot_tool = ScreenshotTool(outer=self.main_window, update_pixmap=self.update_screenshot)
         
-    def new_screenshot(self, update: bool = True):
-        screen = QApplication.primaryScreen()
-        window = self.windowHandle()
-        
-        if window:
-            screen = window.screen()
-            
-        if not screen:
-            return
-        
-        self.main_window.hide()
-        time.sleep(0.3)
-        image = ImageGrab.grab(bbox=(0, 0, self.geometry.width(), self.geometry.height()))
-        self.main_window.show()
-        
-        if update:
-            self.update_screenshot(image)
-            
-        return image
-        
+    def new_screenshot(self):
+        image = self.screenshot_tool.take_full_screenshot()
+        self.update_screenshot(image)
     
     def area_screenshot(self):
-        self.snipping_tool.take_screenshot()
+        self.screenshot_tool.take_area_screenshot()
     
     def save_screenshot(self):        
         file_format = "png"
