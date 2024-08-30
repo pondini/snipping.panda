@@ -1,4 +1,5 @@
 import sys
+import time
 
 from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir
 from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox, QTabWidget
@@ -24,7 +25,7 @@ class Snipping(QWidget):
     def take_screenshot(self):
         self.showFullScreen()
         self.snipping = True
-        self.setWindowOpacity(0.3)
+        
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.CrossCursor))
         self.show()
         
@@ -42,7 +43,8 @@ class Snipping(QWidget):
             
             
         self.setWindowOpacity(opacity)
-        painter = QPainter(self)
+        
+        painter = QPainter(self)     
         painter.setPen(QPen(QColor('black'), lw))
         painter.setBrush(QColor(*color))
         rect = QRectF(self.begin, self.end)
@@ -64,9 +66,6 @@ class Snipping(QWidget):
         self.update()
         
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        img = ImageGrab.grab(bbox = (0, 0, 100, 50))
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
-        cv2.imwrite("lol.png", img)
         self.snipping = False
         QApplication.restoreOverrideCursor()
         x, y = (min(self.begin.x(), self.end.x()), max(self.begin.x(), self.end.x())), (min(self.begin.y(), self.end.y()), max(self.begin.y(), self.end.y()))
@@ -74,8 +73,6 @@ class Snipping(QWidget):
         self.repaint()
         QApplication.processEvents()
         image = ImageGrab.grab(bbox=(x[0], y[0], x[1], y[1]))
-        # QApplication.processEvents()
-        # img = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
         
         self.main.update_screenshot(image)
         
@@ -90,9 +87,10 @@ class ScreenshotMenu(QWidget):
         self.screenshot = QLabel(self)
         self.screenshot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.screenshot.setAlignment(Qt.AlignCenter)
+        self.image = None
         
-        geometry = self.screen().geometry()
-        self.screenshot.setMinimumSize(geometry.width() / 8, geometry.height() / 8)
+        self.geometry = self.screen().geometry()
+        self.screenshot.setMinimumSize(self.geometry.width() / 8, self.geometry.height() / 8)
         
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.screenshot)
@@ -115,15 +113,31 @@ class ScreenshotMenu(QWidget):
         
         self.snipping_tool = Snipping(self)
         
-    def new_screenshot(self):
-        pass
+    def new_screenshot(self, update: bool = True):
+        screen = QApplication.primaryScreen()
+        window = self.windowHandle()
+        
+        if window:
+            screen = window.screen()
+            
+        if not screen:
+            return
+        
+        self.main_window.hide()
+        time.sleep(0.3)
+        image = ImageGrab.grab(bbox=(0, 0, self.geometry.width(), self.geometry.height()))
+        self.main_window.show()
+        
+        if update:
+            self.update_screenshot(image)
+            
+        return image
+        
     
     def area_screenshot(self):
         self.snipping_tool.take_screenshot()
     
-    def save_screenshot(self):
-        pixmap = self.screenshot.pixmap()
-        
+    def save_screenshot(self):        
         file_format = "png"
         
         initial_path = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.PicturesLocation)
@@ -145,7 +159,12 @@ class ScreenshotMenu(QWidget):
             return
         
         file_name = file_dialog.selectedFiles()[0]
-        if not pixmap.save(file_name):
+        
+        if not self.image:
+            return
+        
+        img = cv2.cvtColor(np.array(self.image), cv2.COLOR_BGR2RGB)
+        if not cv2.imwrite(filename=file_name, img=img):
             path = QDir.toNativeSeparators(file_name)
             QMessageBox.warning(
                 self,
@@ -154,6 +173,8 @@ class ScreenshotMenu(QWidget):
             )
     
     def update_screenshot(self, img):
+        self.image = img
+        
         image = ImageQt(img)
         pixmap = QPixmap.fromImage(image)
         self.screenshot.setPixmap(
