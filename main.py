@@ -15,37 +15,46 @@ class Snipping(QWidget):
         self.main = main
         
         screen_size = self.screen().size()
-        screen_width, screen_height = screen_size.width(), screen_size.height()
+        self.screen_width, self.screen_height = screen_size.width(), screen_size.height()
         
-        self.setGeometry(0, 0, screen_width, screen_height)
+        self.setGeometry(0, 0, self.screen_width, self.screen_height)
         self.snipping = False
         self.begin = QPointF()
         self.end = QPointF()
         
     def take_screenshot(self):
-        self.showFullScreen()
         self.snipping = True
         
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.CrossCursor))
-        self.show()
+        
+        self._image = self.main.new_screenshot(False)
+        img = ImageQt(self._image)
+        self._pixmap = QPixmap.fromImage(img)
+        
+        self.showFullScreen()
         
     def paintEvent(self, event: QPaintEvent) -> None:
         if self.snipping:
-            color = (128, 128, 255, 100)
+            # color of the inner rect
+            color = (128, 128, 255, 25)
             lw = 3
-            opacity = 0.3
+            opacity = 1
         else:
             self.begin = QPointF()
             self.end = QPointF()
             color = (0, 0, 0, 0)
             lw = 0
-            opacity = 0
-            
-            
+            opacity = 0        
+        
         self.setWindowOpacity(opacity)
         
-        painter = QPainter(self)     
-        painter.setPen(QPen(QColor('black'), lw))
+        white_layer = QPixmap(self.screen_width, self.screen_height)
+        white_layer.fill(QColor(255, 255, 255, 50))
+        
+        painter = QPainter(self)  
+        painter.drawPixmap(self.rect(), self._pixmap)
+        painter.drawPixmap(self.rect(), white_layer)
+        painter.setPen(QPen(QColor('white'), lw))
         painter.setBrush(QColor(*color))
         rect = QRectF(self.begin, self.end)
         painter.drawRect(rect)
@@ -72,7 +81,7 @@ class Snipping(QWidget):
         
         self.repaint()
         QApplication.processEvents()
-        image = ImageGrab.grab(bbox=(x[0], y[0], x[1], y[1]))
+        image = self._image.crop((x[0], y[0], x[1], y[1]))
         
         self.main.update_screenshot(image)
         
