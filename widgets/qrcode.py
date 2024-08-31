@@ -1,3 +1,5 @@
+import sys
+import os
 from pathlib import Path
 from urllib.parse import urlparse
 import webbrowser
@@ -71,8 +73,11 @@ class QRCodeReaderMenu(QWidget):
         retval, info, bboxes, codes = decoder.detectAndDecodeMulti(np.array(img))
         
         if not retval:            
-            path = Path(__file__).resolve().parent.parent
-            no_qr = Image.open(f"{path}/static/no_qr_code.png")
+            if getattr(sys, 'frozen', False):
+                path = os.path.join(sys._MEIPASS, "files/no_qr_code.png")
+            else:
+                path = f"{Path(__file__).resolve().parent.parent}/static/no_qr_code.png"
+            no_qr = Image.open(f"{path}")
             
             self.set_pixmap(no_qr)
             

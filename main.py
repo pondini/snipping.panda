@@ -1,6 +1,7 @@
 import sys
 
 from PySide6.QtWidgets import QApplication, QTabWidget
+from PySide6.QtGui import QIcon
 
 from widgets.screenshot import ScreenshotMenu
 from widgets.qrcode import QRCodeReaderMenu
@@ -22,6 +23,9 @@ def main() -> None:
     app = QApplication(sys.argv)
     main_widget = MainWidget()
     main_widget.show()
+
+    app.setWindowIcon(QIcon('icon.ico'))
+    main_widget.setWindowIcon(QIcon('icon.ico'))
         
     app.exec()
 
