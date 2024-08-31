@@ -1,7 +1,9 @@
 import sys
+import os
+from pathlib import Path
 
 from PySide6.QtWidgets import QApplication, QTabWidget
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, QPixmap
 
 from widgets.screenshot import ScreenshotMenu
 from widgets.qrcode import QRCodeReaderMenu
@@ -16,16 +18,21 @@ class MainWidget(QTabWidget):
         self.qrcode_reader = QRCodeReaderMenu(self)
         self.addTab(self.qrcode_reader, "QRCode Reader")
         
-        self.setWindowTitle("Screenshot Tool")
+        self.setWindowTitle("SnippingPanda")
         self.resize(500, 400)
 
 def main() -> None:
     app = QApplication(sys.argv)
     main_widget = MainWidget()
     main_widget.show()
+    
+    if getattr(sys, 'frozen', False):
+        path = os.path.join(sys._MEIPASS, "files/icon.ico")
+    else:
+        path = f"{Path(__file__).resolve().parent.parent}/static/icon.ico"
 
-    app.setWindowIcon(QIcon('icon.ico'))
-    main_widget.setWindowIcon(QIcon('icon.ico'))
+    app.setWindowIcon(QIcon(QPixmap(path)))
+    main_widget.setWindowIcon(QIcon(QPixmap(path)))
         
     app.exec()
 
