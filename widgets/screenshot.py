@@ -9,12 +9,15 @@ from PIL.ImageQt import ImageQt
 import cv2
 import numpy as np
 
+def no_callback(**kwargs):
+    pass
+
 class ScreenshotTool(QWidget):
-    def __init__(self, outer: QWidget = None, update_pixmap: Callable = None) -> None:
+    def __init__(self, outer: QWidget = None, image_callback: Callable = no_callback) -> None:
         super(ScreenshotTool, self).__init__()
         self.outer = outer
         
-        self.update_pixmap = update_pixmap
+        self._image_callback = image_callback
         
         screen_size = self.screen().size()
         self.screen_width, self.screen_height = screen_size.width(), screen_size.height()
@@ -102,8 +105,7 @@ class ScreenshotTool(QWidget):
         QApplication.processEvents()
         image = self._image.crop((x[0], y[0], x[1], y[1]))
         
-        if self.update_pixmap:
-            self.update_pixmap(image)
+        self._image_callback(image)
         
         self.close()
         
@@ -140,7 +142,7 @@ class ScreenshotMenu(QWidget):
         
         main_layout.addLayout(buttons)
         
-        self.screenshot_tool = ScreenshotTool(outer=self.main_window, update_pixmap=self.update_screenshot)
+        self.screenshot_tool = ScreenshotTool(outer=self.main_window, image_callback=self.update_screenshot)
         
     def new_screenshot(self):
         image = self.screenshot_tool.take_full_screenshot()

@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QTabWidget
 
 from widgets.screenshot import ScreenshotMenu
+from widgets.qrcode import QRCodeReaderMenu
 
 class MainWidget(QTabWidget):
     def __init__(self):
@@ -10,6 +11,9 @@ class MainWidget(QTabWidget):
         
         self.screenshot = ScreenshotMenu(self)
         self.addTab(self.screenshot, "Screenshot")
+        
+        self.qrcode_reader = QRCodeReaderMenu(self)
+        self.addTab(self.qrcode_reader, "QRCode Reader")
         
         self.setWindowTitle("Screenshot Tool")
         self.resize(500, 400)
