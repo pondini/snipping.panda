@@ -139,4 +139,6 @@ class QRCodeReaderMenu(QWidget):
         )
         
         
-        
+class QRCodeCreatorMenu(QWidget):
+    def __init__(self):
+        super(QRCodeCreatorMenu, self).__init__()
