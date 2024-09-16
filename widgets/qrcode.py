@@ -124,8 +124,7 @@ class QRCodeReaderMenu(QWidget):
         
         clipboard = QApplication.clipboard()
         clipboard.setText(text)
-        
-        
+             
     def set_pixmap(self, img):
         image = ImageQt(img)
         pixmap = QPixmap.fromImage(image)
@@ -140,5 +139,33 @@ class QRCodeReaderMenu(QWidget):
         
         
 class QRCodeCreatorMenu(QWidget):
-    def __init__(self):
+    def __init__(self, main = None):
         super(QRCodeCreatorMenu, self).__init__()
+        
+        self.qr_code_text_label = QTextEdit(self)
+        self.qr_code_text_label.setMaximumHeight(30)
+        self.qr_code_text_label.setVisible(True)
+        
+        qr_code_text_layout = QHBoxLayout()
+        
+        qr_code_text_layout.addWidget(self.qr_code_text_label)
+        
+        buttons = QHBoxLayout()
+        self.create = QPushButton("Generate", self)
+        self.create.setMaximumWidth(80)
+        self.create.clicked.connect(self.create_qr_code)
+        
+        buttons.addWidget(self.create)
+        
+        self.qr_code_image_label = QLabel(self)
+        self.qr_code_image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.qr_code_image_label.setAlignment(Qt.AlignCenter)
+        
+        main_layout = QVBoxLayout(self)
+        main_layout.addLayout(qr_code_text_layout)
+        main_layout.addWidget(self.qr_code_image_label)
+        main_layout.addLayout(buttons)
+        
+    def create_qr_code(self):
+        pass
+        
