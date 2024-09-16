@@ -142,13 +142,13 @@ class QRCodeCreatorMenu(QWidget):
     def __init__(self, main = None):
         super(QRCodeCreatorMenu, self).__init__()
         
-        self.qr_code_text_label = QTextEdit(self)
-        self.qr_code_text_label.setMaximumHeight(30)
-        self.qr_code_text_label.setVisible(True)
+        self.input = QTextEdit(self)
+        self.input.setMaximumHeight(30)
+        self.input.setVisible(True)
         
-        qr_code_text_layout = QHBoxLayout()
+        input_layout = QHBoxLayout()
         
-        qr_code_text_layout.addWidget(self.qr_code_text_label)
+        input_layout.addWidget(self.input)
         
         buttons = QHBoxLayout()
         self.create = QPushButton("Generate", self)
@@ -157,13 +157,13 @@ class QRCodeCreatorMenu(QWidget):
         
         buttons.addWidget(self.create)
         
-        self.qr_code_image_label = QLabel(self)
-        self.qr_code_image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.qr_code_image_label.setAlignment(Qt.AlignCenter)
+        self.output = QLabel(self)
+        self.output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.output.setAlignment(Qt.AlignCenter)
         
         main_layout = QVBoxLayout(self)
-        main_layout.addLayout(qr_code_text_layout)
-        main_layout.addWidget(self.qr_code_image_label)
+        main_layout.addLayout(input_layout)
+        main_layout.addWidget(self.output)
         main_layout.addLayout(buttons)
         
     def create_qr_code(self):
