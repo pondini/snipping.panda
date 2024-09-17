@@ -1,6 +1,8 @@
 # SnippingPanda
 A small tool to create a screenshot of your primary screen, create a areal screenshot by defining the desired area and read QRCodes.
 
+*Screenshots and qr code recognition are currently only supported on primary screen*
+
 ## QRCodes
 - Select the QR code you want to read by marking it with a rectangle
 - If a QR code is detected, it is shown on the UI
