@@ -5,12 +5,12 @@ from urllib.parse import urlparse
 import webbrowser
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap, QCursor
+from PySide6.QtGui import QPixmap, QCursor, QImage
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QApplication
-from PIL.ImageQt import ImageQt
+from PIL.ImageQt import ImageQt, fromqimage
+from PIL import Image
 import cv2
 import numpy as np
-from PIL import Image
 
 from widgets.screenshot import ScreenshotTool
 
@@ -67,6 +67,9 @@ class QRCodeReaderMenu(QWidget):
         self.screenshot_tool.take_area_screenshot()
         
     def update_qr_code(self, img):
+        if isinstance(img, QImage):
+            img = fromqimage(img)
+        
         self.image = img
         
         decoder = cv2.QRCodeDetector()
