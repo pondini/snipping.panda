@@ -1,7 +1,7 @@
 import time
 from typing import Callable, Tuple, List
 
-from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir, QRect, QPoint
+from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir, QRect, QPoint, QSize
 from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox
 from PySide6.QtGui import QCursor, QKeyEvent, QMouseEvent, QPaintEvent, QPainter, QColor, QPen, QPixmap, QImageWriter, QScreen, QImage, QDesktopServices
 from PIL import ImageGrab
@@ -211,7 +211,15 @@ class ScreenshotMenu(QWidget):
     def area_screenshot(self):
         self.screenshot_tool.take_area_screenshot()
     
-    def save_screenshot(self):        
+    def save_screenshot(self):
+        if not self.image:
+            QMessageBox.information(
+                self,
+                "Save Image",
+                "There is no image to save."
+            )
+            return
+                
         file_format = "png"
         
         initial_path = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
@@ -234,9 +242,6 @@ class ScreenshotMenu(QWidget):
         
         file_name = file_dialog.selectedFiles()[0]
         
-        if not self.image:
-            return
-        
         saved = self.image.save(file_name, quality=10)
         path = QDir.toNativeSeparators(file_name)
         
@@ -246,6 +251,19 @@ class ScreenshotMenu(QWidget):
                 "Save Error",
                 f"The image could not be saved to {path}."
             )
+            
+            return
+            
+        message_box = QMessageBox()
+        message_box.setIcon(QMessageBox.Icon.Information)
+        message_box.setWindowTitle("Save Image")
+        message_box.setText(f"The image has been saved.")
+        message_box.show()
+        button1 = message_box.addButton("Open Image", QMessageBox.ButtonRole.ActionRole)
+        button1.clicked.connect(lambda: QDesktopServices.openUrl(initial_file_name))
+        button2 = message_box.addButton("Open Explorer", QMessageBox.ButtonRole.ActionRole)
+        button2.clicked.connect(lambda: QDesktopServices.openUrl(initial_path))
+        message_box.exec_()
 
     def update_screenshot(self, img):
         if not isinstance(img, QImage):
