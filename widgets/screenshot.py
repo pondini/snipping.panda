@@ -2,10 +2,10 @@ import time
 from typing import Callable, Tuple, List
 
 from PySide6.QtCore import Qt, QPointF, QRectF, QStandardPaths, QDir, QRect, QPoint, QSize
-from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox
+from PySide6.QtWidgets import QWidget, QApplication, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QDialog, QMessageBox, QComboBox
 from PySide6.QtGui import QCursor, QKeyEvent, QMouseEvent, QPaintEvent, QPainter, QColor, QPen, QPixmap, QImageWriter, QScreen, QImage, QDesktopServices
 from PIL import ImageGrab
-from PIL.ImageQt import ImageQt
+from PIL.ImageQt import ImageQt, fromqpixmap
 import cv2
 import numpy as np
 
@@ -143,11 +143,14 @@ class ScreenshotTool():
             
         self.outer.show()
         
-    def take_full_screenshot(self):        
+    def take_full_screenshot(self, screen = None):
         self.outer.hide()
         time.sleep(0.3)        
         # image = ImageGrab.grab(bbox=(0, 0, 1920, 1080))
-        image = ImageGrab.grab(bbox=None, all_screens=True)
+        if not screen:
+            image = ImageGrab.grab(bbox=None, all_screens=True)
+        else:
+            image = fromqpixmap(screen.grabWindow())
         self.outer.show()
             
         return image
@@ -174,6 +177,22 @@ class ScreenshotMenu(QWidget):
         super(ScreenshotMenu, self).__init__()
         
         self.main_window = main_window
+        main_layout = QVBoxLayout(self)
+        
+        self.cb = QComboBox()
+        self.cb.setFixedWidth(100)
+        self.cb.addItem("All", userData={"exec": self.all_screens_screenshot})
+        
+        primary = QApplication.primaryScreen()
+        self.cb.addItem("Primary", userData={"exec": self.specific_screen_screenshot, "screen": primary})
+        screens = QApplication.screens()
+        screens.remove(primary)
+        
+        for index, screen in enumerate(screens, 2):
+            self.cb.addItem(f"Screen {index}", userData={"exec": self.specific_screen_screenshot, "screen": screen})
+            
+        cb_layout = QHBoxLayout()
+        cb_layout.addWidget(self.cb)
         
         self.screenshot = QLabel(self)
         self.screenshot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -183,7 +202,7 @@ class ScreenshotMenu(QWidget):
         self.geometry = self.screen().geometry()
         self.screenshot.setMinimumSize(self.geometry.width() / 8, self.geometry.height() / 8)
         
-        main_layout = QVBoxLayout(self)
+        main_layout.addLayout(cb_layout)
         main_layout.addWidget(self.screenshot)
         
         buttons = QHBoxLayout()
@@ -204,9 +223,22 @@ class ScreenshotMenu(QWidget):
         
         self.screenshot_tool = ScreenshotTool(outer=self.main_window, image_callback=self.update_screenshot)
         
-    def new_screenshot(self):
+    def all_screens_screenshot(self):
         image = self.screenshot_tool.take_full_screenshot()
         self.update_screenshot(image)
+    
+    def specific_screen_screenshot(self):
+        screen = self.cb.currentData().get('screen')
+        image = self.screenshot_tool.take_full_screenshot(screen)
+        self.update_screenshot(image)
+        
+    # def new_screenshot(self):
+    #     image = self.screenshot_tool.take_full_screenshot()
+    #     self.update_screenshot(image)
+    
+    def new_screenshot(self):
+        _exec = self.cb.currentData().get("exec")
+        _exec()
     
     def area_screenshot(self):
         self.screenshot_tool.take_area_screenshot()
