@@ -3,8 +3,6 @@ A small tool to create a screenshot of your screens, create a areal screenshot b
 
 Multiple screen setups are also supported now. You can decide which screen you want to take a screenshot of. You can also take a screenshot of all screens.
 
-*Screenshots and qr code recognition are currently only supported on primary screen*
-
 ## QRCodes
 - Select the QR code you want to read by marking it with a rectangle
 - If a QR code is detected, it is shown on the UI
