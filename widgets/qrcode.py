@@ -5,12 +5,12 @@ from urllib.parse import urlparse
 import webbrowser
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap, QCursor
+from PySide6.QtGui import QPixmap, QCursor, QImage
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QApplication
-from PIL.ImageQt import ImageQt
+from PIL.ImageQt import ImageQt, fromqimage
+from PIL import Image
 import cv2
 import numpy as np
-from PIL import Image
 
 from widgets.screenshot import ScreenshotTool
 
@@ -67,6 +67,9 @@ class QRCodeReaderMenu(QWidget):
         self.screenshot_tool.take_area_screenshot()
         
     def update_qr_code(self, img):
+        if isinstance(img, QImage):
+            img = fromqimage(img)
+        
         self.image = img
         
         decoder = cv2.QRCodeDetector()
@@ -124,8 +127,7 @@ class QRCodeReaderMenu(QWidget):
         
         clipboard = QApplication.clipboard()
         clipboard.setText(text)
-        
-        
+             
     def set_pixmap(self, img):
         image = ImageQt(img)
         pixmap = QPixmap.fromImage(image)
@@ -139,4 +141,34 @@ class QRCodeReaderMenu(QWidget):
         )
         
         
+class QRCodeCreatorMenu(QWidget):
+    def __init__(self, main = None):
+        super(QRCodeCreatorMenu, self).__init__()
+        
+        self.input = QTextEdit(self)
+        self.input.setMaximumHeight(30)
+        self.input.setVisible(True)
+        
+        input_layout = QHBoxLayout()
+        
+        input_layout.addWidget(self.input)
+        
+        buttons = QHBoxLayout()
+        self.create = QPushButton("Generate", self)
+        self.create.setMaximumWidth(80)
+        self.create.clicked.connect(self.create_qr_code)
+        
+        buttons.addWidget(self.create)
+        
+        self.output = QLabel(self)
+        self.output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.output.setAlignment(Qt.AlignCenter)
+        
+        main_layout = QVBoxLayout(self)
+        main_layout.addLayout(input_layout)
+        main_layout.addWidget(self.output)
+        main_layout.addLayout(buttons)
+        
+    def create_qr_code(self):
+        pass
         

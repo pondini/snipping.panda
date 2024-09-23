@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication, QTabWidget
 from PySide6.QtGui import QIcon, QPixmap
 
 from widgets.screenshot import ScreenshotMenu
-from widgets.qrcode import QRCodeReaderMenu
+from widgets.qrcode import QRCodeReaderMenu, QRCodeCreatorMenu
 
 class MainWidget(QTabWidget):
     def __init__(self):
@@ -17,6 +17,9 @@ class MainWidget(QTabWidget):
         
         self.qrcode_reader = QRCodeReaderMenu(self)
         self.addTab(self.qrcode_reader, "QRCode Reader")
+        
+        self.qrcode_creator = QRCodeCreatorMenu(self)
+        self.addTab(self.qrcode_creator, "QRCode Creator")
         
         self.setWindowTitle("SnippingPanda")
         self.resize(500, 400)
