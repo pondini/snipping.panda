@@ -4,9 +4,9 @@ from pathlib import Path
 from urllib.parse import urlparse
 import webbrowser
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QStandardPaths, QTimer
 from PySide6.QtGui import QPixmap, QCursor, QImage
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QApplication
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QApplication, QFileDialog, QGroupBox, QLineEdit
 from PIL.ImageQt import ImageQt, fromqimage
 from PIL import Image
 import cv2
@@ -139,24 +139,45 @@ class QRCodeReaderMenu(QWidget):
                 Qt.TransformationMode.SmoothTransformation
             )
         )
-        
-        
+          
 class QRCodeCreatorMenu(QWidget):
     def __init__(self, main = None):
         super(QRCodeCreatorMenu, self).__init__()
         
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.timer_done)
+        
         self.input = QTextEdit(self)
         self.input.setMaximumHeight(30)
         self.input.setVisible(True)
+        self.input.setPlaceholderText("Add url or text content")
+        self.input.textChanged.connect(self.update_qr_code)
         
-        input_layout = QHBoxLayout()
+        input_text_layout = QHBoxLayout()
+        input_text_layout.addWidget(self.input)
         
-        input_layout.addWidget(self.input)
+        self.input_image = None
+        
+        self.input_image_button = QPushButton("Upload File")
+        self.input_image_button.clicked.connect(self.get_file)
+        
+        self.input_image_text = QLineEdit()
+        self.input_image_text.setReadOnly(True)
+        self.input_image_text.textChanged.connect(self.update_qr_code)
+        
+        self.input_image_delete = QPushButton("X")
+        self.input_image_delete.setMaximumWidth(30)
+        self.input_image_delete.clicked.connect(self.delete_file)
+        
+        input_image_layout = QHBoxLayout()
+        input_image_layout.addWidget(self.input_image_button)
+        input_image_layout.addWidget(self.input_image_text)
+        input_image_layout.addWidget(self.input_image_delete)
         
         buttons = QHBoxLayout()
-        self.create = QPushButton("Generate", self)
+        self.create = QPushButton("Download", self)
         self.create.setMaximumWidth(80)
-        self.create.clicked.connect(self.create_qr_code)
+        self.create.clicked.connect(self.download_qr_code)
         
         buttons.addWidget(self.create)
         
@@ -164,11 +185,48 @@ class QRCodeCreatorMenu(QWidget):
         self.output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.output.setAlignment(Qt.AlignCenter)
         
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.output)
+        
+        groupbox = QGroupBox("Preview")
+        groupbox.setLayout(vbox)
+        
         main_layout = QVBoxLayout(self)
-        main_layout.addLayout(input_layout)
-        main_layout.addWidget(self.output)
+        main_layout.addLayout(input_text_layout)
+        main_layout.addLayout(input_image_layout)
+        main_layout.addWidget(groupbox)
         main_layout.addLayout(buttons)
         
-    def create_qr_code(self):
+    def get_file(self):
+        inital_path = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+        fname = QFileDialog.getOpenFileName(self, 'Open File', inital_path, "Image files (*.jpg *.jpeg *.png)")
+        
+        path = fname[0]
+        
+        if path is None or path == '':
+            return
+        
+        img = Image.open(f"{path}")
+        
+        image = ImageQt(img)
+        self.input_image = QPixmap.fromImage(image)
+        self.input_image_text.setText(path)
+        
+    def delete_file(self):
+        self.input_image = None
+        self.input_image_text.setText("")
+        
+    def update_qr_code(self):
+        self.timer.start(1500)
+        
+    def timer_done(self):
+        self.timer.stop()
+        
+        if self.input.toPlainText() == "" or self.input.toPlainText() == None:
+            return
+        
+        print("Create QR Code here")
+        
+    def download_qr_code(self):
         pass
         
