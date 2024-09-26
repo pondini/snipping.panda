@@ -7,6 +7,7 @@ from PIL.ImageQt import ImageQt
 from PIL.Image import Image
 
 from screenshot.tool import ScreenshotTool
+from utils import save_image
 
 class ScreenshotMenu(QWidget):    
     def __init__(self, main_window: QWidget = None) -> None:
@@ -78,60 +79,63 @@ class ScreenshotMenu(QWidget):
     
     def area_screenshot(self) -> None:
         self.screenshot_tool.take_area_screenshot()
-    
+        
     def save_screenshot(self) -> None:
-        if not self.image:
-            QMessageBox.information(
-                self,
-                "Save Image",
-                "There is no image to save."
-            )
-            return
+        save_image(self, self.image)
+    
+    # def save_screenshot(self) -> None:
+    #     if not self.image:
+    #         QMessageBox.information(
+    #             self,
+    #             "Save Image",
+    #             "There is no image to save."
+    #         )
+    #         return
                 
-        file_format: str = "png"
+    #     file_format: str = "png"
         
-        initial_path: str = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
-        if not initial_path:
-            initial_path = QDir.currentPath()
+    #     initial_path: str = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
+    #     if not initial_path:
+    #         initial_path = QDir.currentPath()
             
-        initial_file_name: str = f"{initial_path}/untitled.{file_format}"
+    #     initial_file_name: str = f"{initial_path}/untitled.{file_format}"
         
-        file_dialog: QFileDialog = QFileDialog(self, "Save As", initial_file_name)
-        file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-        file_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-        file_dialog.setDirectory(initial_path)
+    #     file_dialog: QFileDialog = QFileDialog(self, "Save As", initial_file_name)
+    #     file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
+    #     file_dialog.setFileMode(QFileDialog.FileMode.AnyFile)
+    #     file_dialog.setDirectory(initial_path)
         
-        mime_types: List[str] = [bf.data().decode('utf8') for bf in QImageWriter.supportedMimeTypes()]
-        file_dialog.setMimeTypeFilters(mime_types)
-        file_dialog.selectMimeTypeFilter("image/" + file_format)
-        file_dialog.setDefaultSuffix(file_format)
-        if file_dialog.exec() != QDialog.Accepted:
-            return
+    #     mime_types: List[str] = [bf.data().decode('utf8') for bf in QImageWriter.supportedMimeTypes()]
+    #     file_dialog.setMimeTypeFilters(mime_types)
+    #     file_dialog.selectMimeTypeFilter("image/" + file_format)
+    #     file_dialog.setDefaultSuffix(file_format)
+    #     if file_dialog.exec() != QDialog.Accepted:
+    #         return
         
-        file_name: str = file_dialog.selectedFiles()[0]
+    #     file_name: str = file_dialog.selectedFiles()[0]
         
-        saved: bool = self.image.save(file_name, quality=10)
-        path: str = QDir.toNativeSeparators(file_name)
+    #     saved: bool = self.image.save(file_name, quality=10)
+    #     path: str = QDir.toNativeSeparators(file_name)
         
-        if not saved:
-            QMessageBox.warning(
-                self,
-                "Save Error",
-                f"The image could not be saved to {path}."
-            )
+    #     if not saved:
+    #         QMessageBox.warning(
+    #             self,
+    #             "Save Error",
+    #             f"The image could not be saved to {path}."
+    #         )
             
-            return
+    #         return
             
-        message_box: QMessageBox = QMessageBox()
-        message_box.setIcon(QMessageBox.Icon.Information)
-        message_box.setWindowTitle("Save Image")
-        message_box.setText(f"The image has been saved.")
-        message_box.show()
-        button1: QPushButton = message_box.addButton("Open Image", QMessageBox.ButtonRole.ActionRole)
-        button1.clicked.connect(lambda: QDesktopServices.openUrl(initial_file_name))
-        button2: QPushButton = message_box.addButton("Open Explorer", QMessageBox.ButtonRole.ActionRole)
-        button2.clicked.connect(lambda: QDesktopServices.openUrl(initial_path))
-        message_box.exec_()
+    #     message_box: QMessageBox = QMessageBox()
+    #     message_box.setIcon(QMessageBox.Icon.Information)
+    #     message_box.setWindowTitle("Save Image")
+    #     message_box.setText(f"The image has been saved.")
+    #     message_box.show()
+    #     button1: QPushButton = message_box.addButton("Open Image", QMessageBox.ButtonRole.ActionRole)
+    #     button1.clicked.connect(lambda: QDesktopServices.openUrl(initial_file_name))
+    #     button2: QPushButton = message_box.addButton("Open Explorer", QMessageBox.ButtonRole.ActionRole)
+    #     button2.clicked.connect(lambda: QDesktopServices.openUrl(initial_path))
+    #     message_box.exec_()
 
     def update_screenshot(self, img: Image | QImage) -> None:
         if not isinstance(img, QImage):
