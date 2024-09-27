@@ -4,6 +4,8 @@ from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLa
 from PIL.ImageQt import ImageQt
 from PIL import Image
 
+from utils import save_image
+
 class QRCodeCreatorMenu(QWidget):
     def __init__(self, main = None):
         super(QRCodeCreatorMenu, self).__init__()
@@ -90,7 +92,15 @@ class QRCodeCreatorMenu(QWidget):
             return
         
         print("Create QR Code here")
+        if self.input_image:
+            self.output.setPixmap(
+                self.input_image.scaled(
+                    self.output.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+            )
         
     def download_qr_code(self):
-        pass
+        save_image(self, self.output.pixmap().toImage())
         
