@@ -102,5 +102,15 @@ class QRCodeCreatorMenu(QWidget):
             )
         
     def download_qr_code(self):
-        save_image(self, self.output.pixmap().toImage())
+        msgs = {
+            "information_title": "Save QRCode",
+            "information_text": "There is no generated QRCode to save.",
+            "warning_title": "Save Error",
+            "warning_text": "The QRCode could not be saved.",
+            "save_title": "Save QRCode",
+            "save_text": "The QRCode has been saved.",
+            "open_button_text": "Open QRCode"
+        }
+        
+        save_image(self, self.output.pixmap().toImage(), msgs)
         

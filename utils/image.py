@@ -1,17 +1,18 @@
-from typing import List
+from typing import List, Dict
 
 from PySide6.QtCore import QStandardPaths, QDir
-from PySide6.QtWidgets import QPushButton, QFileDialog, QDialog, QMessageBox
-from PySide6.QtGui import QImageWriter, QDesktopServices
+from PySide6.QtWidgets import QPushButton, QFileDialog, QDialog, QMessageBox, QWidget
+from PySide6.QtGui import QImageWriter, QDesktopServices, QImage
 
-def save_image(parent, image) -> None:
-    # TODO: Add text to method header
-    
+def save_image(parent: QWidget, image: QImage, msgs: Dict[str, str]) -> None:
+    if not isinstance(msgs, dict):
+        msgs = dict()
+        
     if not image:
         QMessageBox.information(
             parent,
-            "Save Image",
-            "There is no image to save."
+            msgs.get("information_title", "Save Image"),
+            msgs.get("information_text", "There is no image to save.")
         )
         return
             
@@ -43,18 +44,18 @@ def save_image(parent, image) -> None:
     if not saved:
         QMessageBox.warning(
             parent,
-            "Save Error",
-            f"The image could not be saved to {path}."
+            msgs.get("warning_title", "Save Error"),
+            msgs.get("warning_text", "The image could not be saved.")
         )
         
         return
         
     message_box: QMessageBox = QMessageBox()
     message_box.setIcon(QMessageBox.Icon.Information)
-    message_box.setWindowTitle("Save Image")
-    message_box.setText(f"The image has been saved.")
+    message_box.setWindowTitle(msgs.get("save_title", "Save Image"))
+    message_box.setText(msgs.get("save_text", "The image has been saved."))
     message_box.show()
-    button1: QPushButton = message_box.addButton("Open Image", QMessageBox.ButtonRole.ActionRole)
+    button1: QPushButton = message_box.addButton(msgs.get("open_button_text", "Open Image"), QMessageBox.ButtonRole.ActionRole)
     button1.clicked.connect(lambda: QDesktopServices.openUrl(initial_file_name))
     button2: QPushButton = message_box.addButton("Open Explorer", QMessageBox.ButtonRole.ActionRole)
     button2.clicked.connect(lambda: QDesktopServices.openUrl(initial_path))
