@@ -51,6 +51,8 @@ class QRCodeCreatorMenu(QWidget):
         self.output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.output.setAlignment(Qt.AlignCenter)
         
+        self.output_image = None
+        
         vbox = QVBoxLayout()
         vbox.addWidget(self.output)
         
@@ -93,6 +95,8 @@ class QRCodeCreatorMenu(QWidget):
         
         print("Create QR Code here")
         if self.input_image:
+            self.output_image = self.input_image.toImage()
+            
             self.output.setPixmap(
                 self.input_image.scaled(
                     self.output.size(),
@@ -112,5 +116,5 @@ class QRCodeCreatorMenu(QWidget):
             "open_button_text": "Open QRCode"
         }
         
-        save_image(self, self.output.pixmap().toImage(), msgs)
+        save_image(self, self.output_image, msgs)
         
