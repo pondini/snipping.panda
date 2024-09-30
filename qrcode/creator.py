@@ -3,6 +3,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QFileDialog, QGroupBox, QLineEdit
 from PIL.ImageQt import ImageQt
 from PIL import Image
+import segno
 
 from utils import save_image
 
