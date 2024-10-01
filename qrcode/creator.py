@@ -94,17 +94,21 @@ class QRCodeCreatorMenu(QWidget):
         if self.input.toPlainText() == "" or self.input.toPlainText() == None:
             return
         
-        print("Create QR Code here")
-        if self.input_image:
-            self.output_image = self.input_image.toImage()
-            
-            self.output.setPixmap(
-                self.input_image.scaled(
-                    self.output.size(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
+        qrcode = segno.make_qr(self.input.toPlainText())
+        
+        from PIL.ImageQt import ImageQt
+        image = ImageQt(qrcode.to_pil())
+        
+        self.output_image = image
+        image_pixmap = QPixmap.fromImage(image)
+        
+        self.output.setPixmap(
+            image_pixmap.scaled(
+                self.output.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
             )
+        )
         
     def download_qr_code(self):
         msgs = {
