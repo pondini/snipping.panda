@@ -4,7 +4,7 @@ from PySide6.QtCore import QStandardPaths, QDir
 from PySide6.QtWidgets import QPushButton, QFileDialog, QDialog, QMessageBox, QWidget
 from PySide6.QtGui import QImageWriter, QDesktopServices, QImage
 
-def save_image(parent: QWidget, image: QImage, msgs: Dict[str, str]) -> None:
+def save_image(parent: QWidget, image: QImage, msgs: Dict[str, str] = None) -> None:
     if not isinstance(msgs, dict):
         msgs = dict()
         

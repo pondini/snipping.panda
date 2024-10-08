@@ -81,6 +81,16 @@ class ScreenshotMenu(QWidget):
         self.screenshot_tool.take_area_screenshot()
         
     def save_screenshot(self) -> None:
+        msgs = {
+            "information_title": "Save Image",
+            "information_text": "There is no image to save.",
+            "warning_title": "Save Error",
+            "warning_text": "The image could not be saved.",
+            "save_title": "Save Image",
+            "save_text": "The image has been saved.",
+            "open_button_text": "Open Image"
+        }
+        
         save_image(self, self.image)
     
     # def save_screenshot(self) -> None:
