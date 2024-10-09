@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from PySide6.QtCore import QStandardPaths, QDir
+from PySide6.QtCore import QStandardPaths, QDir, QFileInfo
 from PySide6.QtWidgets import QPushButton, QFileDialog, QDialog, QMessageBox, QWidget
 from PySide6.QtGui import QImageWriter, QDesktopServices, QImage
 
@@ -49,6 +49,9 @@ def save_image(parent: QWidget, image: QImage, msgs: Dict[str, str] = None) -> N
         )
         
         return
+    
+    info = QFileInfo(file_name)
+    dir_path = info.absoluteDir().path()
         
     message_box: QMessageBox = QMessageBox()
     message_box.setIcon(QMessageBox.Icon.Information)
@@ -56,7 +59,7 @@ def save_image(parent: QWidget, image: QImage, msgs: Dict[str, str] = None) -> N
     message_box.setText(msgs.get("save_text", "The image has been saved."))
     message_box.show()
     button1: QPushButton = message_box.addButton(msgs.get("open_button_text", "Open Image"), QMessageBox.ButtonRole.ActionRole)
-    button1.clicked.connect(lambda: QDesktopServices.openUrl(initial_file_name))
+    button1.clicked.connect(lambda: QDesktopServices.openUrl(file_name))
     button2: QPushButton = message_box.addButton("Open Explorer", QMessageBox.ButtonRole.ActionRole)
-    button2.clicked.connect(lambda: QDesktopServices.openUrl(initial_path))
+    button2.clicked.connect(lambda: QDesktopServices.openUrl(dir_path))
     message_box.exec_()
