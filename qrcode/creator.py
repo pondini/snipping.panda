@@ -95,8 +95,20 @@ class QRCodeCreatorMenu(QWidget):
             return
         
         qrcode = segno.make_qr(self.input.toPlainText())
+        if self.input_image:
+            import io
+            out = io.BytesIO()
+            text = self.input_image_text.text()
+
+            kind = text.split('.')[-1]
+            if kind == 'jpg':
+                kind = 'png'
+            
+            qrcode.to_artistic(background=text, target=out, kind=kind)
+            pil_image = Image.open(out)
         
-        pil_image = qrcode.to_pil()
+        else:
+            pil_image = qrcode.to_pil()
         
         pil_image = pil_image.resize((800, 800))
         pil_image = pil_image.convert('RGB')
