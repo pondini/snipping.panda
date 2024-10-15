@@ -12,7 +12,7 @@ from PIL import Image
 import cv2
 import numpy as np
 
-from widgets.screenshot import ScreenshotTool
+from screenshot.tool import ScreenshotTool
 
 class QRCodeReaderMenu(QWidget):
     def __init__(self, main = None):
@@ -139,36 +139,4 @@ class QRCodeReaderMenu(QWidget):
                 Qt.TransformationMode.SmoothTransformation
             )
         )
-        
-        
-class QRCodeCreatorMenu(QWidget):
-    def __init__(self, main = None):
-        super(QRCodeCreatorMenu, self).__init__()
-        
-        self.input = QTextEdit(self)
-        self.input.setMaximumHeight(30)
-        self.input.setVisible(True)
-        
-        input_layout = QHBoxLayout()
-        
-        input_layout.addWidget(self.input)
-        
-        buttons = QHBoxLayout()
-        self.create = QPushButton("Generate", self)
-        self.create.setMaximumWidth(80)
-        self.create.clicked.connect(self.create_qr_code)
-        
-        buttons.addWidget(self.create)
-        
-        self.output = QLabel(self)
-        self.output.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.output.setAlignment(Qt.AlignCenter)
-        
-        main_layout = QVBoxLayout(self)
-        main_layout.addLayout(input_layout)
-        main_layout.addWidget(self.output)
-        main_layout.addLayout(buttons)
-        
-    def create_qr_code(self):
-        pass
-        
+ 

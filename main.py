@@ -5,8 +5,8 @@ from pathlib import Path
 from PySide6.QtWidgets import QApplication, QTabWidget
 from PySide6.QtGui import QIcon, QPixmap
 
-from widgets.screenshot import ScreenshotMenu
-from widgets.qrcode import QRCodeReaderMenu, QRCodeCreatorMenu
+from screenshot.menu import ScreenshotMenu
+from qrcode import QRCodeReaderMenu, QRCodeCreatorMenu
 
 class MainWidget(QTabWidget):
     def __init__(self):
