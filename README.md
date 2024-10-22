@@ -29,7 +29,7 @@ On Windows:
 > pyinstaller --clean -y -n "SnippingPanda" --add-data="static\no_qr_code.png;files" --onefile --icon="static\icon.ico" --noconsole .\main.py
 
 ### Upcoming
-- [X] QR code Creator
+- [ ] ~QR code Creator~ There seems to be an error with the creation of qr codes using segno in the .exe file
 - [ ] Multiple QR code Reader
 - [X] Multiple Monitor support
 - [ ] Give user feedback with toasts (e.g., if the content of the QR code is copied by clicking on the text)
