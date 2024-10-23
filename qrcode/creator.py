@@ -3,9 +3,8 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QFileDialog, QGroupBox, QLineEdit
 from PIL.ImageQt import ImageQt
 from PIL import Image
-import segno
 
-from utils import save_image
+from utils import save_image, GENERATORS
 
 class QRCodeCreatorMenu(QWidget):
     def __init__(self, main = None):
@@ -94,26 +93,16 @@ class QRCodeCreatorMenu(QWidget):
         if self.input.toPlainText() == "" or self.input.toPlainText() == None:
             return
         
-        qrcode = segno.make_qr(self.input.toPlainText())
-        if self.input_image:
-            import io
-            out = io.BytesIO()
-            text = self.input_image_text.text()
-
-            kind = text.split('.')[-1]
-            if kind == 'jpg':
-                kind = 'png'
-            
-            qrcode.to_artistic(background=text, target=out, kind=kind)
-            pil_image = Image.open(out)
+        generator = GENERATORS.get('segno')
+        if generator is None:
+            return
         
-        else:
-            pil_image = qrcode.to_pil()
-        
-        pil_image = pil_image.resize((800, 800))
-        pil_image = pil_image.convert('RGB')
-        
-        image = ImageQt(pil_image)
+        gen = generator(
+            self.input, 
+            self.input_image, 
+            self.input_image_text
+        )
+        image = gen.generate_qr_code()
         
         self.output_image = image
         image_pixmap = QPixmap.fromImage(image)

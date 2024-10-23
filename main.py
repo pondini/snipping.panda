@@ -18,8 +18,8 @@ class MainWidget(QTabWidget):
         self.qrcode_reader = QRCodeReaderMenu(self)
         self.addTab(self.qrcode_reader, "QRCode Reader")
         
-        # self.qrcode_creator = QRCodeCreatorMenu(self)
-        # self.addTab(self.qrcode_creator, "QRCode Creator")
+        self.qrcode_creator = QRCodeCreatorMenu(self)
+        self.addTab(self.qrcode_creator, "QRCode Creator")
         
         self.setWindowTitle("SnippingPanda")
         self.resize(500, 400)

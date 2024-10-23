@@ -2,3 +2,4 @@ pyside6==6.7.2
 pillow==10.4.0
 opencv-python==4.10.0.84
 segno==1.6.1
+qrcode-artistic==3.0.2
